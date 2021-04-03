@@ -23,61 +23,66 @@ namespace Регулярка_От_Жигулина__29._03._2021_
 
         static string UnZip(string text, int multiply)
         {
-            for (int inBrackets = text.IndexOf('['); inBrackets != -1; inBrackets = text.IndexOf('[', inBrackets + 1))
+
+            try // Отловить ошибку, когда подстрока пуста
             {
-                int outBrackets;
-                string number = "";
-
-                // Нахождение внешних скобок и проверка на их логичность (Иначе воспринимать их как обычные символы)
+                for (int inBrackets = text.IndexOf('['); inBrackets != -1; inBrackets = text.IndexOf('[', inBrackets + 1))
                 {
-                    // Проверка на логичность скобки (Есть ли число перед ней)
-                    if (inBrackets - 1 == -1) continue;
-                    if (FromCharToInt(text[inBrackets - 1]) == -1) continue;
-                    /////////////////////////////////////////////////////////
+                    int outBrackets;
+                    string number = "";
 
-                    // Поиск ближайщей закрывающей скобки и проверка на ее присутствие
-                    outBrackets = text.IndexOf(']', inBrackets + 1);
-                    if (outBrackets == -1) break;
-                    /////////////////////////////
-
-                    // Уточнение эта ли закрывающая скобка нужна (Если есть вложенные скобки)
-                    for (int internalInBrackets = text.IndexOf('[', inBrackets + 1); internalInBrackets != -1; internalInBrackets = text.IndexOf('[', internalInBrackets + 1))
+                    // Нахождение внешних скобок и проверка на их логичность (Иначе воспринимать их как обычные символы)
                     {
-                        // Проверка на логичность внутренней скобки
-                        if (FromCharToInt(text[internalInBrackets - 1]) == -1) continue;
-                        if (Math.Sign(outBrackets - internalInBrackets) == -1) break; // Если внутренняя скобка за внешней скобкой
-                        /////////////////////////////////////////////////////////////
+                        // Проверка на логичность скобки (Есть ли число перед ней)
+                        if (inBrackets - 1 == -1) continue;
+                        if (FromCharToInt(text[inBrackets - 1]) == -1) continue;
+                        /////////////////////////////////////////////////////////
 
-                        // Когда есть внутренние скобки, то переключиться на следующую закрывающую скобку
-                        if (text.IndexOf(']', outBrackets + 1) != -1)
+                        // Поиск ближайщей закрывающей скобки и проверка на ее присутствие
+                        outBrackets = text.IndexOf(']', inBrackets + 1);
+                        if (outBrackets == -1) break;
+                        /////////////////////////////
+
+                        // Уточнение эта ли закрывающая скобка нужна (Если есть вложенные скобки)
+                        for (int internalInBrackets = text.IndexOf('[', inBrackets + 1); internalInBrackets != -1; internalInBrackets = text.IndexOf('[', internalInBrackets + 1))
                         {
-                            outBrackets = text.IndexOf(']', outBrackets + 1);
+                            // Проверка на логичность внутренней скобки
+                            if (FromCharToInt(text[internalInBrackets - 1]) == -1) continue;
+                            if (Math.Sign(outBrackets - internalInBrackets) == -1) break; // Если внутренняя скобка за внешней скобкой
+                                                                                          /////////////////////////////////////////////////////////////
+
+                            // Когда есть внутренние скобки, то переключиться на следующую закрывающую скобку
+                            if (text.IndexOf(']', outBrackets + 1) != -1)
+                            {
+                                outBrackets = text.IndexOf(']', outBrackets + 1);
+                            }
                         }
                     }
-                }
-                ///////////////////////////////////////////////////////////////////////////////////////////////////////
+                    ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-                // Нахождение числа
-                try
-                {
-                    for (int indexNum = inBrackets - 1; FromCharToInt(text[indexNum]) != -1; indexNum--)
+                    // Нахождение числа
+                    try
                     {
-                        number += text[indexNum];
+                        for (int indexNum = inBrackets - 1; FromCharToInt(text[indexNum]) != -1; indexNum--)
+                        {
+                            number += text[indexNum];
+                        }
                     }
-                  }
-                catch (IndexOutOfRangeException) { }
-                number = ReverseString(number);
-                ///////////////////////////////
+                    catch (IndexOutOfRangeException) { }
+                    number = ReverseString(number);
+                    ///////////////////////////////
 
-                // Извлечение и распаковка подстроки
-                string substring = UnZip(text.Substring(inBrackets + 1, outBrackets - inBrackets - 1), int.Parse(number));
+                    // Извлечение и распаковка подстроки
+                    string substring = UnZip(text.Substring(inBrackets + 1, outBrackets - inBrackets - 1), int.Parse(number));
 
-                // Удаление скобок и числа из строки (Это для того, чтобы на их место поставить подстроку)
-                text = text.Remove(inBrackets - number.Length, outBrackets - inBrackets + 1 + number.Length);
+                    // Удаление скобок и числа из строки (Это для того, чтобы на их место поставить подстроку)
+                    text = text.Remove(inBrackets - number.Length, outBrackets - inBrackets + 1 + number.Length);
 
-                // Вставка подстроки (На место числа и скобок
-                text = text.Insert(inBrackets - number.Length, substring);
+                    // Вставка подстроки (На место числа и скобок
+                    text = text.Insert(inBrackets - number.Length, substring);
+                }
             }
+            catch (Exception) { }
 
             // Умножение подстроки на число
             text = MultiplyString(text, multiply);
